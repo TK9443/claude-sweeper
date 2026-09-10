@@ -1,8 +1,8 @@
 # Design
 
 Claude Sweeper looks like a storage inspector over Chrome's own data: figures about what is saved
-and what will go, never a settings screen. The desktop window (`claude_sweeper/theme.py`) and the
-extension's options page (`extension/options.css`) share one set of tokens.
+and what will go, never a settings screen. Tokens and the stylesheet live in
+`claude_sweeper/theme.py`.
 
 ## Colour
 
@@ -11,13 +11,13 @@ Light only. The window is opened for a minute at a desk, read, and closed.
 | Token | Value | Job |
 | --- | --- | --- |
 | `ground` | `#e9ebe6` | foot bar, muted chip fill, Windows caption |
-| `sheet` | `#fbfbf9` | window and page background, table header |
+| `sheet` | `#fbfbf9` | window background, table header |
 | `panel` | `#ffffff` | table rows, filter bar, fields, buttons |
 | `ink` | `#15171a` | text; fill of the leading neutral button |
 | `ink_2` | `#555b62` | secondary text, the Chrome lock dot |
-| `ink_3` | `#6b7178` | column headings, hints, the switch's off track |
+| `ink_3` | `#6b7178` | column headings, hints |
 | `rule` / `rule_strong` | `#dadcd6` / `#c3c6bf` | hairlines / control borders |
-| `select` | `#2b50d6` | focus, selection, the switch's on state; nothing else |
+| `select` | `#2b50d6` | focus and selection; nothing else |
 | `remove` / `remove_deep` / `remove_wash` | `#c23a22` / `#a8301b` / `#fbeae6` | only what a purge removes |
 | `ok` | `#1f7a4d` | the dot when Chrome is closed |
 
@@ -27,10 +27,9 @@ already removed, or counted for a different pattern, are muted grey.
 
 ## Type
 
-Geist for text, Geist Mono for every figure, pattern, chip and log stamp. Both are bundled
-(`assets/fonts/`, `extension/fonts/`, SIL OFL) and never fetched. Window sizes: 15px semibold title,
-13px body, 12px labels and figures, 11px chips and stamps. Options page: 20px title, 14px body,
-13px ledger, 12px hints and note. Labels are sans even beside mono figures.
+Geist for text, Geist Mono for every figure, pattern, chip and log stamp, bundled in
+`assets/fonts/` (SIL OFL) and never fetched. 15px semibold title, 13px body, 12px labels and
+figures, 11px chips and stamps.
 
 ## Window
 
@@ -44,13 +43,6 @@ with a two-line stamp and three buttons. 640 x 460 by default, 560 x 380 minimum
   rather than wrapped; the full text is in the tooltip.
 - Chip titles are struck through; the "×N" count beside them is not.
 - Focus is a 2px `select` border on every button.
-
-## Options page
-
-One 520px column: title and one-line purpose, a white panel of two rows (switch, pattern field),
-a ledger of the last check in label/figure pairs, and a note on why tabs are closed. A pattern that
-matches every group, or does not compile, turns the field border red and says so in the hint; it is
-never saved.
 
 ## Icon
 

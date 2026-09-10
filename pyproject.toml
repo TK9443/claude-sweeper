@@ -1,7 +1,7 @@
 [project]
 name = "claude_sweeper"
 version = "1.0.0"
-description = "Tray companion to the Claude Sweeper extension: purges the saved agent tab-group chips Chrome keeps"
+description = "Tray app that purges the saved agent tab-group chips Chrome keeps"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "pyside6-essentials>=6.11.1",

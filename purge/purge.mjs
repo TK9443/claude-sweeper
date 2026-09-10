@@ -1,7 +1,6 @@
 // Deletes saved agent tab groups — the chips Chrome keeps in the bookmarks bar after a
-// group is closed — straight out of each profile's sync store. The extension can only act on
-// a group while it is still open; a closed chip is invisible to every extension API, and
-// the only copy of it is here:
+// group is closed — straight out of each profile's sync store. A closed chip is invisible to
+// every extension API, and the only copy of it is here:
 //   <profile>\Sync Data\LevelDB   keys  saved_tab_group-dt-<guid>  (SavedTabGroupData wrapping the specifics)
 //                                        saved_tab_group-md-<guid>  (sync EntityMetadata)
 // A group and each of its tabs are separate entities; a tab points at its group by
