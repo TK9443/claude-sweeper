@@ -29,6 +29,10 @@ try {
     try { npm ci --no-audit --no-fund --silent } finally { Pop-Location }
     if (-not (Test-Path "$repo\purge\node_modules\classic-level")) { throw "npm ci left no classic-level in purge\node_modules" }
 
+    # Bundled so users need no Node of their own; must be the official nodejs.org build.
+    $env:CLAUDE_SWEEPER_NODE = (Get-Command node.exe -ErrorAction SilentlyContinue).Path
+    if (-not $env:CLAUDE_SWEEPER_NODE) { throw "node.exe not found; the purge engine needs it bundled" }
+
     Write-Host "`n=== 3. PyInstaller ===" -ForegroundColor Cyan
     & $uv run pyinstaller --noconfirm --distpath $dist --workpath $work "$repo\ClaudeSweeper.spec"
 } finally {

@@ -17,10 +17,14 @@ with open(os.path.join(HERE, 'claude_sweeper', '__init__.py'), encoding='utf-8')
     if match:
         version = match.group(1)
 
+# The purge engine runs on Node, and a user should not have to install it. The build scripts pass
+# the official Node binary to bundle; engine.node_path looks for it before anything on PATH.
+NODE = os.environ.get('CLAUDE_SWEEPER_NODE')
+
 a = Analysis(
     ['claude_sweeper/__main__.py'],
     pathex=[],
-    binaries=[],
+    binaries=[(NODE, 'node')] if NODE else [],
     datas=[('assets', 'assets'), ('purge/purge.mjs', 'purge'), ('purge/package.json', 'purge'), ('purge/node_modules', 'purge/node_modules')],
     hiddenimports=[],
     hookspath=[],

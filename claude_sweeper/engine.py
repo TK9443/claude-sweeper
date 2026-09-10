@@ -39,7 +39,12 @@ def log_path() -> str:
 
 
 def node_path() -> str | None:
-    """A GUI process has no login-shell PATH, so the pinned Node is looked for by location too."""
+    """The Node bundled with a built app first; otherwise, since a GUI process has no login-shell
+    PATH, Node is looked for by location as well as on PATH."""
+    if getattr(sys, "frozen", False):
+        bundled = os.path.join(sys._MEIPASS, "node", "node.exe" if WINDOWS else "node")
+        if os.path.exists(bundled):
+            return bundled
     found = shutil.which("node")
     if found:
         return found
