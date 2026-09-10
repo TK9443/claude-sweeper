@@ -6,3 +6,6 @@ build/
 __pycache__/
 *.pyc
 .impeccable/
+# The app writes logs and backups outside the repo; these catch a --log or a copied store run from inside it.
+*.log
+backups/
