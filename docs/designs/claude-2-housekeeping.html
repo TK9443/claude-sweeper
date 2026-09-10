@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Claude Sweeper — direction 2, Housekeeping board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #3b1019; --deep: #2a0b12; --card: #521826; --card-2: #62202f; --ink: #f5ece4; --ink-2: #d8c3bb; --ink-3: #b3978f;
+    --brass: #d2a95a; --brass-ink: #2a1a05; --rule: #6e2b3a; --live: #8fcfa8;
+    --sans: Jost, system-ui, sans-serif; --mono: "Martian Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 40px 24px 64px; background: #1c080d; font: 400 13.5px/1.45 var(--sans); color: var(--ink); }
+  .intro { max-width: 1180px; margin: 0 auto 28px; }
+  .intro h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
+  .intro p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+  .stage { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 640px 1fr; gap: 32px; align-items: start; }
+  .label { font-size: 12px; color: var(--ink-3); margin: 0 0 8px; }
+  @media (max-width: 1100px) { .stage { grid-template-columns: 1fr; } }
+
+  .win { width: 640px; max-width: 100%; height: 460px; background: var(--ground); border-radius: 11px; overflow: hidden; display: flex; flex-direction: column;
+         box-shadow: 0 22px 50px -14px rgba(0,0,0,.7); }
+  .bar { height: 30px; flex: none; display: flex; align-items: center; gap: 7px; padding: 0 12px; background: var(--deep); }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #5a2531; }
+  .top { padding: 18px 22px 14px; display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--rule); }
+  .top h2 { margin: 0; font-size: 20px; font-weight: 500; letter-spacing: .01em; }
+  .top span { margin-left: auto; font-size: 12.5px; color: var(--ink-2); }
+  .rooms { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 22px; }
+  .hanger { position: relative; background: var(--card); border-radius: 10px 10px 6px 6px; padding: 30px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .hanger::before { content: ""; position: absolute; top: 9px; left: 50%; width: 30px; height: 14px; margin-left: -15px; border-radius: 0 0 15px 15px; background: var(--ground); }
+  .hanger h3 { margin: 0; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+  .hanger .count { font: 500 34px/1 var(--sans); color: var(--brass); font-variant-numeric: tabular-nums; }
+  .hanger p { margin: 0; font-size: 12.5px; color: var(--ink-2); }
+  .hanger.clean .count { color: var(--ink-3); }
+  .hanger ul { margin: 4px 0 0; padding: 0; list-style: none; font: 400 11px/1.6 var(--mono); color: var(--ink-3); }
+  .foot { flex: none; display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: var(--deep); }
+  .foot small { margin-right: auto; font-size: 12px; color: var(--ink-3); }
+  .btn { font: 500 13px/1 var(--sans); padding: 9px 13px; border-radius: 99px; border: 1px solid var(--rule); color: var(--ink); background: transparent; }
+  .btn.primary { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); }
+
+  .page { background: var(--ground); border-radius: 11px; overflow: hidden; box-shadow: 0 22px 50px -14px rgba(0,0,0,.7); }
+  .page .url { height: 30px; background: var(--deep); display: flex; align-items: center; padding: 0 12px; font: 400 11px var(--mono); color: var(--ink-3); }
+  .page main { max-width: 480px; margin: 0 auto; padding: 26px 20px 30px; }
+  .page h2 { margin: 0 0 2px; font-size: 20px; font-weight: 500; }
+  .page p.sub { margin: 0 0 20px; color: var(--ink-2); }
+  .signs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .sign { background: var(--card); border-radius: 10px 10px 6px 6px; padding: 14px; }
+  .sign .count { font: 500 30px/1 var(--sans); color: var(--live); }
+  .sign.swept .count { color: var(--brass); }
+  .sign p { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-2); }
+  .rows { background: var(--card-2); border-radius: 8px; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+  .row:last-child { border-bottom: 0; }
+  .row label { flex: 1; }
+  .row small { display: block; color: var(--ink-3); font-size: 12px; }
+  .switch { width: 30px; height: 18px; border-radius: 9px; background: var(--brass); position: relative; }
+  .switch::after { content: ""; position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--brass-ink); }
+  .field { font: 400 12px/1 var(--mono); padding: 6px 8px; border-radius: 5px; background: var(--deep); border: 1px solid var(--rule); color: var(--ink); min-width: 150px; }
+</style>
+</head>
+<body>
+  <div class="intro">
+    <h1>Direction 2 — Housekeeping board</h1>
+    <p>Agent groups treated like hotel rooms. The extension knows which are still in session and which have checked out and been swept; the app shows each profile as a door hanger with the chips left behind. Oxblood hanger card, brass for anything waiting to be cleared. Profiles and titles below are synthetic.</p>
+  </div>
+  <div class="stage">
+    <div>
+      <p class="label">Desktop app, 640 × 460</p>
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <div class="top"><h2>Claude Sweeper</h2><span>Chrome is open</span></div>
+        <div class="rooms">
+          <div class="hanger"><h3>Default</h3><div class="count">6</div><p>chips left behind</p><ul><li>Claude ×5</li><li>Claude · research</li></ul></div>
+          <div class="hanger clean"><h3>Profile 1</h3><div class="count">0</div><p>nothing to clear</p></div>
+          <div class="hanger"><h3>Profile 3</h3><div class="count">4</div><p>chips left behind</p><ul><li>Claude ×4</li></ul></div>
+        </div>
+        <div class="foot"><small>Last swept 09-09-2026 22:14</small><span class="btn">Log</span><span class="btn">Count</span><span class="btn primary">Close Chrome and clear 10</span></div>
+      </div>
+    </div>
+    <div>
+      <p class="label">Extension settings page</p>
+      <div class="page">
+        <div class="url">chrome-extension://…/options.html</div>
+        <main>
+          <h2>Claude Sweeper</h2>
+          <p class="sub">Agent groups are left alone while in session, and cleared once they check out.</p>
+          <div class="signs">
+            <div class="sign"><div class="count">2</div><p>In session. Do not disturb.</p></div>
+            <div class="sign swept"><div class="count">1</div><p>Checked out and swept, 22:31.</p></div>
+          </div>
+          <div class="rows">
+            <div class="row"><label>Sweep idle agent groups<small>Ten minutes after the last activity</small></label><span class="switch"></span></div>
+            <div class="row"><label>Agent group titles<small>Regular expression, any case</small></label><span class="field">claude</span></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

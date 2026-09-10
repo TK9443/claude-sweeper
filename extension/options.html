@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claude Sweeper</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <!--
+      THESIS: A storage inspector, not a settings screen: the page reports what the sweep is doing
+      to the user's tab groups in measured figures, and refuses the usual header, eyebrow and card stack.
+      OWN-WORLD: Paper-grey sheet, one white bordered panel of rows, ink-black Geist, Geist Mono for
+      every figure and pattern, blue only for focus and the on state, red only for what gets removed.
+      STORY: The user sees the sweep is on, which group titles it treats as agent groups, and when it
+      last checked; they can switch it off or change the pattern, and cannot save one that matches every group.
+      FIRST VIEWPORT: Title and one-line purpose, the two-row panel (switch, pattern field), the
+      three-line ledger of the last check, and the note on why tabs are closed, in a 520px column.
+      FORM: Storage inspector, second of seven on the ordered list; seed rolled locally (index 2).
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
+    <main>
+      <h1>Claude Sweeper</h1>
+      <p class="sub">Closes an agent's tab group once it goes quiet, before Chrome can save it as a chip.</p>
+
+      <div class="rows">
+        <label class="row" for="auto">
+          <span class="text">Close idle agent groups<small>Ten minutes after anything last touched them</small></span>
+          <input id="auto" class="switch" type="checkbox" role="switch" />
+        </label>
+        <div class="row">
+          <label class="text" for="pattern">Group titles matching<small id="pattern-help">Case-insensitive regular expression</small></label>
+          <input id="pattern" class="field" type="text" spellcheck="false" autocomplete="off" aria-describedby="pattern-help" />
+        </div>
+      </div>
+
+      <dl class="ledger" aria-live="polite">
+        <div><dt>last check</dt><dd id="at">none yet</dd></div>
+        <div><dt>groups waiting</dt><dd id="waiting">0</dd></div>
+        <div><dt>groups closed</dt><dd id="swept">0</dd></div>
+      </dl>
+
+      <p class="note">
+        Closing the tabs is what deletes the saved chip. Ungrouping them is not enough: the Claude
+        extension regroups ungrouped tabs into a new group at once. Chips Chrome has already saved
+        can only be removed by the Claude Sweeper desktop app, with Chrome closed.
+      </p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

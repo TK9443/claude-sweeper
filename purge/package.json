@@ -1,0 +1,10 @@
+{
+  "name": "claude-sweeper-purge",
+  "version": "1.0.0",
+  "description": "Deletes saved Claude tab-group chips from Chrome sync stores",
+  "type": "module",
+  "dependencies": {
+    "classic-level": "^2.0.0"
+  },
+  "private": true
+}

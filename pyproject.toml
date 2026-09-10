@@ -1,0 +1,22 @@
+[project]
+name = "claude_sweeper"
+version = "1.0.0"
+description = "Tray companion to the Claude Sweeper extension: purges the saved agent tab-group chips Chrome keeps"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "pyside6-essentials>=6.11.1",
+]
+[project.gui-scripts]
+claude-sweeper = "claude_sweeper.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["claude_sweeper"]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.22.0",
+]

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Claude Sweeper — direction 3, Plain utility</title>
+<style>
+  :root { --ground: #ececef; --panel: #ffffff; --ink: #1d1d1f; --ink-2: #6e6e73; --rule: #e0e0e4; --accent: #0a66d8; --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 40px 24px 64px; background: #d6d6db; font: 400 13px/1.45 var(--sans); color: var(--ink); }
+  .intro { max-width: 1180px; margin: 0 auto 28px; }
+  .intro h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
+  .intro p { margin: 0; color: #48484d; max-width: 70ch; }
+  .stage { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 640px 1fr; gap: 32px; align-items: start; }
+  .label { font-size: 12px; color: #48484d; margin: 0 0 8px; }
+  @media (max-width: 1100px) { .stage { grid-template-columns: 1fr; } }
+  .win { width: 640px; max-width: 100%; height: 460px; background: var(--ground); border-radius: 11px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 18px 40px -12px rgba(0,0,0,.3); }
+  .bar { height: 30px; display: flex; align-items: center; gap: 7px; padding: 0 12px; }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #c9c9ce; }
+  .bar b { margin: 0 auto; font-weight: 600; font-size: 12.5px; transform: translateX(-24px); }
+  .content { flex: 1; padding: 8px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .group { background: var(--panel); border-radius: 9px; }
+  .item { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--rule); gap: 10px; }
+  .item:last-child { border-bottom: 0; }
+  .item span:first-child { flex: 1; }
+  .item .v { color: var(--ink-2); }
+  .field { padding: 4px 8px; border: 1px solid #cfcfd4; border-radius: 5px; min-width: 160px; background: #fff; }
+  .log { flex: 1; background: var(--panel); border-radius: 9px; padding: 10px 14px; font: 11.5px/1.6 ui-monospace, Menlo, monospace; color: var(--ink-2); }
+  .foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; }
+  .btn { font: 400 13px/1 var(--sans); padding: 6px 12px; border-radius: 6px; background: #fff; border: 1px solid #cfcfd4; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .page { background: var(--ground); border-radius: 11px; overflow: hidden; box-shadow: 0 18px 40px -12px rgba(0,0,0,.3); }
+  .page .url { height: 30px; background: #e2e2e6; display: flex; align-items: center; padding: 0 12px; font-size: 11.5px; color: var(--ink-2); }
+  .page main { max-width: 480px; margin: 0 auto; padding: 26px 20px 30px; display: flex; flex-direction: column; gap: 14px; }
+  .page h2 { margin: 0; font-size: 18px; }
+  .switch { width: 30px; height: 18px; border-radius: 9px; background: #34c759; position: relative; }
+  .switch::after { content: ""; position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+</style>
+</head>
+<body>
+  <div class="intro">
+    <h1>Direction 3 — Plain utility</h1>
+    <p>The category standard played straight: grouped native settings rows, a system font, a blue primary button. It looks like part of the operating system and nothing more. Figures below are synthetic.</p>
+  </div>
+  <div class="stage">
+    <div>
+      <p class="label">Desktop app, 640 × 460</p>
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i><b>Claude Sweeper</b></div>
+        <div class="content">
+          <div class="group">
+            <div class="item"><span>Chrome</span><span class="v">Open</span></div>
+            <div class="item"><span>Saved agent chips</span><span class="v">10 in 2 profiles</span></div>
+            <div class="item"><span>Group titles matching</span><span class="field">claude</span></div>
+          </div>
+          <div class="log">09-09-2026 22:14:02 Default: 14 saved group(s), 7 matching /claude/i<br>09-09-2026 22:14:02 &nbsp;deleted 19 entities (7 groups + tabs)<br>09-09-2026 22:14:03 Profile 1: 3 saved group(s), 0 matching</div>
+        </div>
+        <div class="foot"><span class="btn">Open Log</span><span class="btn">Count</span><span class="btn primary">Purge Now</span></div>
+      </div>
+    </div>
+    <div>
+      <p class="label">Extension settings page</p>
+      <div class="page">
+        <div class="url">chrome-extension://…/options.html</div>
+        <main>
+          <h2>Claude Sweeper</h2>
+          <div class="group">
+            <div class="item"><span>Close idle agent groups</span><span class="switch"></span></div>
+            <div class="item"><span>Group titles matching</span><span class="field">claude</span></div>
+            <div class="item"><span>Last check</span><span class="v">22:31, 2 waiting, 1 closed</span></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

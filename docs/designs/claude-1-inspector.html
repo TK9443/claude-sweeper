@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Claude Sweeper — direction 1, Storage inspector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #e9ebe6; --sheet: #fbfbf9; --panel: #ffffff; --ink: #15171a; --ink-2: #555b62; --ink-3: #7d838a;
+    --rule: #dadcd6; --rule-strong: #c3c6bf; --select: #2b50d6; --select-ink: #ffffff; --remove: #c23a22; --remove-wash: #fbeae6; --ok: #1f7a4d;
+    --sans: Geist, system-ui, sans-serif; --mono: "Geist Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 40px 24px 64px; background: #cfd2cc; font: 400 13px/1.45 var(--sans); color: var(--ink); }
+  .intro { max-width: 1180px; margin: 0 auto 28px; }
+  .intro h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+  .intro p { margin: 0; color: #3d4247; max-width: 70ch; }
+  .stage { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 640px 1fr; gap: 32px; align-items: start; }
+  .label { font-size: 12px; color: #3d4247; margin: 0 0 8px; }
+  @media (max-width: 1100px) { .stage { grid-template-columns: 1fr; } }
+
+  /* desktop window */
+  .win { width: 640px; max-width: 100%; height: 460px; background: var(--sheet); border-radius: 11px; overflow: hidden; display: flex; flex-direction: column;
+         box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 18px 40px -12px rgba(20,24,20,.35); }
+  .bar { height: 30px; flex: none; display: flex; align-items: center; gap: 7px; padding: 0 12px; background: var(--ground); border-bottom: 1px solid var(--rule); }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #d7d9d4; border: 1px solid #c2c5be; }
+  .bar b { margin-left: auto; margin-right: auto; font-weight: 500; font-size: 12px; color: var(--ink-2); transform: translateX(-24px); }
+  .top { display: flex; align-items: center; gap: 12px; padding: 14px 18px 12px; border-bottom: 1px solid var(--rule); }
+  .top h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  .state { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--remove); }
+  .filter { display: flex; align-items: center; gap: 10px; padding: 10px 18px; background: var(--panel); border-bottom: 1px solid var(--rule); }
+  .filter span { color: var(--ink-2); font-size: 12px; }
+  .field { font: 500 12px/1 var(--mono); padding: 6px 8px; border: 1px solid var(--rule-strong); border-radius: 5px; background: #fff; min-width: 180px; }
+  .filter em { font-style: normal; font-size: 12px; color: var(--ink-3); margin-left: auto; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-weight: 500; font-size: 11.5px; color: var(--ink-3); padding: 8px 18px 6px; border-bottom: 1px solid var(--rule); background: var(--sheet); }
+  td { padding: 8px 18px; border-bottom: 1px solid var(--rule); vertical-align: top; background: var(--panel); }
+  td.n { font-family: var(--mono); text-align: right; width: 70px; }
+  th.n { text-align: right; }
+  td.hit { color: var(--remove); font-weight: 500; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .chip { font: 400 11.5px/1 var(--mono); padding: 3px 6px; border-radius: 4px; background: var(--remove-wash); color: var(--remove); text-decoration: line-through; text-decoration-thickness: 1px; }
+  .body { flex: 1; overflow: hidden; }
+  .foot { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-top: 1px solid var(--rule); background: var(--ground); }
+  .foot small { font: 400 11.5px/1.3 var(--mono); color: var(--ink-3); margin-right: auto; }
+  .btn { font: 500 12.5px/1 var(--sans); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--rule-strong); background: #fff; color: var(--ink); }
+  .btn.primary { background: var(--remove); border-color: var(--remove); color: #fff; }
+
+  /* extension options page */
+  .page { background: var(--sheet); border-radius: 11px; overflow: hidden; box-shadow: 0 18px 40px -12px rgba(20,24,20,.35); }
+  .page .url { height: 30px; background: var(--ground); border-bottom: 1px solid var(--rule); display: flex; align-items: center; padding: 0 12px; font: 400 11.5px var(--mono); color: var(--ink-3); }
+  .page main { max-width: 480px; margin: 0 auto; padding: 26px 20px 30px; }
+  .page h2 { margin: 0 0 2px; font-size: 18px; font-weight: 600; }
+  .page p.sub { margin: 0 0 20px; color: var(--ink-2); }
+  .rows { border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+  .row:last-child { border-bottom: 0; }
+  .row label { flex: 1; }
+  .row label small { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; }
+  .switch { width: 30px; height: 18px; border-radius: 9px; background: var(--select); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+  .ledger { margin-top: 18px; font: 400 12px/1.6 var(--mono); color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 12px; }
+  .ledger div { display: flex; justify-content: space-between; }
+  .ledger b { font-weight: 500; color: var(--ink); }
+  .note { font-size: 12px; color: var(--ink-3); margin-top: 22px; }
+</style>
+</head>
+<body>
+  <div class="intro">
+    <h1>Direction 1 — Storage inspector</h1>
+    <p>An instrument over Chrome's own data. The window reads like a storage table: each profile a row, the chips that will go struck through in one signal colour, the purge button naming exactly what it will do. Daylight desk, neutral paper-grey. Profiles and group titles below are synthetic.</p>
+  </div>
+  <div class="stage">
+    <div>
+      <p class="label">Desktop app, 640 × 460</p>
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i><b>Claude Sweeper</b></div>
+        <div class="top"><h2>Saved agent chips</h2><span class="state">Chrome is open, store locked</span></div>
+        <div class="filter"><span>Group titles matching</span><span class="field">claude</span><em>counted 22:14</em></div>
+        <div class="body">
+          <table>
+            <thead><tr><th>Profile</th><th class="n">Saved</th><th class="n">Matching</th></tr></thead>
+            <tbody>
+              <tr><td>Default<div class="chips"><span class="chip">Claude</span><span class="chip">Claude</span><span class="chip">Claude</span><span class="chip">Claude · research</span><span class="chip">Claude</span><span class="chip">Claude</span></div></td><td class="n">14</td><td class="n hit">6</td></tr>
+              <tr><td>Profile 1</td><td class="n">3</td><td class="n">0</td></tr>
+              <tr><td>Profile 3<div class="chips"><span class="chip">Claude</span><span class="chip">Claude</span><span class="chip">Claude</span><span class="chip">Claude</span></div></td><td class="n">9</td><td class="n hit">4</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="foot"><small>last purge 09-09-2026 22:14 · 7 removed · backup kept</small><span class="btn">Open log</span><span class="btn">Count again</span><span class="btn primary">Quit Chrome and remove 10</span></div>
+      </div>
+    </div>
+    <div>
+      <p class="label">Extension settings page</p>
+      <div class="page">
+        <div class="url">chrome-extension://…/options.html</div>
+        <main>
+          <h2>Claude Sweeper</h2>
+          <p class="sub">Closes an agent's tab group once it goes quiet, before Chrome can save it.</p>
+          <div class="rows">
+            <div class="row"><label>Close idle agent groups<small>Ten minutes after anything last touched them</small></label><span class="switch"></span></div>
+            <div class="row"><label>Group titles matching<small>Case-insensitive regular expression</small></label><span class="field">claude</span></div>
+          </div>
+          <div class="ledger">
+            <div><span>last check</span><b>22:31</b></div>
+            <div><span>groups waiting</span><b>2</b></div>
+            <div><span>groups closed</span><b>1</b></div>
+          </div>
+          <p class="note">Closing the tabs is what deletes the saved chip. Ungrouping them only makes the Claude extension regroup them into a new one.</p>
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
