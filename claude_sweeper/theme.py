@@ -86,7 +86,7 @@ QFrame[ui="foot"] {{ background: {ground}; border: 0; border-top: 1px solid {rul
 QFrame[ui="thead"] {{ background: {sheet}; border: 0; border-bottom: 1px solid {rule}; }}
 QFrame[ui="row"] {{ background: {panel}; border: 0; border-bottom: 1px solid {rule}; }}
 QFrame[ui="dot"] {{ background: {ok}; border: 0; border-radius: 3px; }}
-QFrame[ui="dot"][state="locked"] {{ background: {remove}; }}
+QFrame[ui="dot"][state="locked"] {{ background: {ink_2}; }}
 
 QLabel {{ background: transparent; color: {ink}; }}
 QLabel[ui="title"] {{ font-size: 15px; font-weight: 600; }}
@@ -121,12 +121,17 @@ QPushButton {{
 }}
 QPushButton:hover {{ border-color: {ink_3}; }}
 QPushButton:pressed {{ background: {ground}; }}
-QPushButton:focus {{ border-color: {select}; }}
 QPushButton:disabled {{ color: {ink_3}; background: {sheet}; border-color: {rule}; }}
 QPushButton[ui="primary"] {{ background: {remove}; border-color: {remove}; color: #ffffff; }}
 QPushButton[ui="primary"]:hover {{ background: {remove_deep}; border-color: {remove_deep}; }}
-QPushButton[ui="primary"]:focus {{ border-color: {select}; }}
 QPushButton[ui="primary"]:disabled {{ background: {rule}; border-color: {rule}; color: {ink_3}; }}
+QPushButton[ui="lead"] {{ background: {ink}; border-color: {ink}; color: {sheet}; }}
+QPushButton[ui="lead"]:hover {{ background: #2c3035; border-color: #2c3035; }}
+QPushButton[ui="lead"]:disabled {{ background: {rule}; border-color: {rule}; color: {ink_3}; }}
+/* Last, so it wins over the filled variants: a 1px blue edge vanished against the red fill. */
+QPushButton:focus, QPushButton[ui="primary"]:focus, QPushButton[ui="lead"]:focus {{
+    border: 2px solid {select}; padding: 5px 11px;
+}}
 
 QScrollArea {{ background: {sheet}; border: 0; }}
 QScrollBar:vertical {{ background: transparent; width: 10px; margin: 2px; }}

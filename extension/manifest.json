@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Claude Sweeper",
-  "version": "1.4",
+  "version": "1.5",
   "description": "Closes idle agent tab groups before Chrome can save them as chips in the bookmarks bar.",
   "permissions": ["tabs", "tabGroups", "storage", "alarms"],
   "background": { "service_worker": "background.js" },

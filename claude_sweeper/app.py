@@ -11,7 +11,7 @@ from PySide6.QtCore import QObject, QPoint, QRect, QSettings, QSize, Qt, QThread
 from PySide6.QtGui import QDesktopServices, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QFrame, QGridLayout, QHBoxLayout, QLabel, QLayout, QLineEdit, QMainWindow,
-    QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget,
+    QMessageBox, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
 )
 
 from . import __version__, engine, theme
@@ -103,6 +103,28 @@ class FlowLayout(QLayout):
             x += hint.width() + self._gap
             line = max(line, hint.height())
         return y + line - rect.y()
+
+
+class ElidedLabel(QLabel):
+    """One line that shortens with an ellipsis rather than wrapping and growing the foot. The
+    whole text stays in the tooltip."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._full = ""
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+
+    def set_full_text(self, text: str) -> None:
+        self._full = text
+        self.setToolTip(text)
+        self._elide()
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self._elide()
+
+    def _elide(self) -> None:
+        self.setText(self.fontMetrics().elidedText(self._full, Qt.TextElideMode.ElideRight, self.width()))
 
 
 def _when(stamp: str) -> str:
@@ -202,9 +224,8 @@ class Window(QMainWindow):
         foot_row = QHBoxLayout(foot)
         foot_row.setContentsMargins(18, 10, 18, 10)
         foot_row.setSpacing(8)
-        self.note = QLabel()
+        self.note = ElidedLabel()
         self.note.setProperty("ui", "stamp")
-        self.note.setWordWrap(True)
         log_button = QPushButton("Open log")
         log_button.clicked.connect(self.open_log)
         self.count_button = QPushButton("Count")
@@ -242,14 +263,23 @@ class Window(QMainWindow):
             column.addStretch(2)
             return body
         removed = run.kind == "delete"
+        # Red means "the purge button removes this". Chips already gone, or counted for a
+        # pattern other than the one in the field, are history, not a promise.
+        muted = removed or run.pattern != self.pattern.text()
         column.addWidget(self._row("Profile", "Saved", "Removed" if removed else "Matching", header=True))
         for profile in run.profiles:
-            column.addWidget(self._row(profile.name, str(profile.saved), str(profile.matching), profile=profile, removed=removed))
+            column.addWidget(self._row(profile.name, str(profile.saved), str(profile.matching), profile=profile, muted=muted))
         column.addStretch(1)
         return body
 
+    def _render_table(self) -> None:
+        old = self.scroll.takeWidget()
+        if old is not None:
+            old.deleteLater()
+        self.scroll.setWidget(self._table())
+
     def _row(self, name: str, saved: str, matching: str, header: bool = False,
-             profile: engine.Profile | None = None, removed: bool = False) -> QFrame:
+             profile: engine.Profile | None = None, muted: bool = False) -> QFrame:
         row = QFrame()
         row.setProperty("ui", "thead" if header else "row")
         grid = QGridLayout(row)
@@ -260,7 +290,7 @@ class Window(QMainWindow):
         first = QLabel(name)
         first.setProperty("ui", "th" if header else "")
         grid.addWidget(first, 0, 0)
-        for col, text, hit in ((1, saved, False), (2, matching, not header and not removed and matching != "0")):
+        for col, text, hit in ((1, saved, False), (2, matching, not header and not muted and matching != "0")):
             cell = QLabel(text)
             cell.setProperty("ui", "th" if header else ("hit" if hit else "num"))
             cell.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -272,11 +302,11 @@ class Window(QMainWindow):
             chips.setProperty("ui", "plain")
             flow = FlowLayout(chips)
             for title, count in Counter(profile.titles).items():
-                text = f"{title or 'untitled'} ×{count}" if count > 1 else (title or "untitled")
-                # Rich text, because a stylesheet cannot strike a label through.
-                chip = QLabel(f"<s>{html.escape(text)}</s>")
+                # Rich text, because a stylesheet cannot strike a label through. Only the title
+                # is struck; the count beside it is a figure, not something removed.
+                chip = QLabel(f"<s>{html.escape(title or 'untitled')}</s>" + (f" ×{count}" if count > 1 else ""))
                 chip.setTextFormat(Qt.TextFormat.RichText)
-                chip.setProperty("ui", "chip-gone" if removed else "chip")
+                chip.setProperty("ui", "chip-gone" if muted else "chip")
                 flow.addWidget(chip)
             grid.addWidget(chips, 1, 0, 1, 3)
         return row
@@ -290,10 +320,6 @@ class Window(QMainWindow):
         runs = engine.runs(engine.read_log_tail(400))
         self._run = runs[-1] if runs else None
         self._last_purge = next((r for r in reversed(runs) if r.kind == "delete"), None)
-        old = self.scroll.takeWidget()
-        if old is not None:
-            old.deleteLater()
-        self.scroll.setWidget(self._table())
         self._pattern_changed()
 
     def _pending(self) -> int | None:
@@ -316,6 +342,7 @@ class Window(QMainWindow):
             other = "" if run.pattern == self.pattern.text() else f" for “{run.pattern}”"
             self.counted.setText(f"{verb} {_when(run.stamp)}{other}")
         repolish(self.counted, state="" if valid else "bad")
+        self._render_table()
         self._update_actions(valid)
 
     def _save_pattern(self) -> None:
@@ -331,21 +358,28 @@ class Window(QMainWindow):
             text = self._busy_text
         elif pending:
             text = f"Quit Chrome and remove {pending}" if self._chrome_open else f"Remove {pending}"
+        elif pending == 0:
+            text = "Nothing to remove"
         else:
             text = "Quit Chrome and purge" if self._chrome_open else "Purge now"
+        # Red leads only when a current count says what it will remove; until then Count leads,
+        # so the user sees what would go before anything goes.
+        repolish(self.purge_button, ui="primary" if pending else "")
+        repolish(self.count_button, ui="" if pending else "lead")
         self.purge_button.setText(text)
-        self.purge_button.setEnabled(valid and not busy)
+        self.purge_button.setEnabled(valid and not busy and pending != 0)
         self.count_button.setText("Recount" if self._run else "Count")
         self.count_button.setEnabled(valid and not busy)
         self.pattern.setEnabled(not busy)
         if self._summary:
-            self.note.setText(self._summary)
+            self.note.set_full_text(self._summary)
         elif self._last_purge:
             last = self._last_purge
             outcome = f"{last.removed} removed" if last.removed else "nothing to remove"
-            self.note.setText(f"purged {_when(last.stamp)}, {outcome}")
+            backup = ", backup kept" if last.backup else ""
+            self.note.set_full_text(f"purged {_when(last.stamp)}, {outcome}{backup}")
         else:
-            self.note.setText("no purge yet")
+            self.note.set_full_text("no purge yet")
         if self.tray:
             self.tray.set_busy(busy)
 

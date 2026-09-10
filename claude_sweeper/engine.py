@@ -175,6 +175,7 @@ class Run:
     stamp: str
     profiles: list[Profile] = field(default_factory=list)
     removed: int = 0
+    backup: bool = False
 
     @property
     def pending(self) -> int:
@@ -211,6 +212,7 @@ def runs(log: str) -> list[Run]:
                 pass
         elif match := _DELETED.search(line):
             run.removed += int(match.group(1))
+            run.backup = run.backup or "backup at" in line
     return found
 
 

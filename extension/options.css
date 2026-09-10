@@ -66,7 +66,7 @@ h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em
 .row:last-child { border-bottom: 0; }
 label.row { cursor: pointer; }
 .text { flex: 1 1 200px; min-width: 0; }
-.text small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--ink-3); }
+.text small { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-3); }
 .text small.bad { color: var(--remove); }
 
 .switch {
@@ -77,7 +77,7 @@ label.row { cursor: pointer; }
   height: 20px;
   margin: 0;
   border-radius: 10px;
-  background: var(--rule-strong);
+  background: var(--ink-3);
   cursor: pointer;
   transition: background-color 0.2s var(--ease);
 }
@@ -118,9 +118,10 @@ label.row { cursor: pointer; }
   color: var(--ink-2);
 }
 .ledger div { display: flex; justify-content: space-between; gap: 16px; }
+.ledger dt { font-family: var(--sans); }
 .ledger dd { margin: 0; color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
 
-.note { margin: 24px 0 0; font-size: 13px; color: var(--ink-3); }
+.note { margin: 24px 0 0; font-size: 12px; color: var(--ink-3); }
 
 @media (prefers-reduced-motion: reduce) {
   .switch, .switch::after { transition: none; }
