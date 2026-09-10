@@ -106,8 +106,8 @@ class FlowLayout(QLayout):
 
 
 class ElidedLabel(QLabel):
-    """One line that shortens with an ellipsis rather than wrapping and growing the foot. The
-    whole text stays in the tooltip."""
+    """Fixed lines that each shorten with an ellipsis rather than wrapping and growing the foot.
+    The whole text stays in the tooltip."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -124,7 +124,10 @@ class ElidedLabel(QLabel):
         self._elide()
 
     def _elide(self) -> None:
-        self.setText(self.fontMetrics().elidedText(self._full, Qt.TextElideMode.ElideRight, self.width()))
+        metrics = self.fontMetrics()
+        self.setText("\n".join(
+            metrics.elidedText(line, Qt.TextElideMode.ElideRight, self.width()) for line in self._full.split("\n")
+        ))
 
 
 def _when(stamp: str) -> str:
@@ -371,13 +374,15 @@ class Window(QMainWindow):
         self.count_button.setText("Recount" if self._run else "Count")
         self.count_button.setEnabled(valid and not busy)
         self.pattern.setEnabled(not busy)
+        # Two short lines fit beside the buttons at the minimum width; one long line had to hide
+        # the figure and the backup, which are the parts that matter.
         if self._summary:
-            self.note.set_full_text(self._summary)
+            self.note.set_full_text(self._summary.replace(". ", ".\n", 1))
         elif self._last_purge:
             last = self._last_purge
             outcome = f"{last.removed} removed" if last.removed else "nothing to remove"
             backup = ", backup kept" if last.backup else ""
-            self.note.set_full_text(f"purged {_when(last.stamp)}, {outcome}{backup}")
+            self.note.set_full_text(f"purged {_when(last.stamp)}\n{outcome}{backup}")
         else:
             self.note.set_full_text("no purge yet")
         if self.tray:
